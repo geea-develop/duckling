@@ -2,14 +2,14 @@
 -- All rights reserved.
 --
 -- This source code is licensed under the BSD-style license found in the
--- LICENSE file in the root directory of this source tree. An additional grant
--- of patent rights can be found in the PATENTS file in the same directory.
+-- LICENSE file in the root directory of this source tree.
 
 
 {-# LANGUAGE OverloadedStrings #-}
 
 module Duckling.Time.ES.Corpus
   ( corpus
+    , latentCorpus
   ) where
 
 import Data.String
@@ -21,8 +21,20 @@ import Duckling.Time.Corpus
 import Duckling.TimeGrain.Types hiding (add)
 import Duckling.Testing.Types hiding (examples)
 
+context :: Context
+context = testContext {locale = makeLocale ES Nothing}
+
+latentCorpus :: Corpus
+latentCorpus = (context, testOptions {withLatent = True}, xs)
+  where
+    xs = concat
+      [ examples (datetime (2013, 2, 12, 13, 0, 0) Hour)
+                 [ "una hora"
+                 ]
+      ]
+
 corpus :: Corpus
-corpus = (testContext {locale = makeLocale ES Nothing}, testOptions, allExamples)
+corpus = (context, testOptions, allExamples)
 
 allExamples :: [Example]
 allExamples = concat
@@ -43,8 +55,63 @@ allExamples = concat
              [ "anteayer"
              , "antier"
              ]
+  {--
+    This is intentional
+    The purpose is to steer the classifier towards "tomorrow" rule
+    instead of "morning" rule.
+  --}
   , examples (datetime (2013, 2, 13, 0, 0, 0) Day)
              [ "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "manana"
+             , "mañana"
+             , "manana"
+             , "mañana"
+             , "manana"
              ]
   , examples (datetime (2013, 2, 14, 0, 0, 0) Day)
              [ "pasado mañana"
@@ -161,6 +228,11 @@ allExamples = concat
   , examples (datetime (2013, 2, 18, 0, 0, 0) Week)
              [ "la semana que viene"
              , "la proxima semana"
+             , "semana que viene"
+             , "proxima semana"
+             , "proximas semana"
+             , "próxima semana"
+             , "siguiente semana"
              ]
   , examples (datetime (2013, 1, 1, 0, 0, 0) Month)
              [ "el pasado mes"
@@ -205,6 +277,8 @@ allExamples = concat
   , examples (datetime (2013, 2, 12, 12, 0, 0) Hour)
              [ "mediodía"
              , "las doce"
+             , "medio dia"
+             , "medio día"
              ]
   , examples (datetime (2013, 2, 12, 12, 15, 0) Minute)
              [ "las doce y cuarto"
@@ -324,6 +398,9 @@ allExamples = concat
              [ "ano nuevo"
              , "año nuevo"
              ]
+  , examples (datetime (2013, 2, 12, 21, 0, 0) Hour)
+             [ "nueve de la noche"
+             ]
   , examples (datetimeInterval ((2013, 2, 12, 18, 0, 0), (2013, 2, 13, 0, 0, 0)) Hour)
              [ "esta noche"
              ]
@@ -413,5 +490,62 @@ allExamples = concat
              ]
   , examples (datetime (2013, 8, 15, 0, 0, 0) Day)
              [ "jue 15"
+             ]
+  , examples (datetimeHoliday (2013, 12, 18, 0, 0, 0) Day "Día Mundial de la Lengua Árabe")
+             [ "dia mundial de la lengua arabe"
+             , "día mundial de la lengua árabe"
+             ]
+  , examples (datetimeHoliday (2013, 3, 1, 0, 0, 0) Day "Día de la Cero Discriminación")
+             [ "dia de la cero discriminacion"
+             , "día de la cero discriminación"
+             ]
+  , examples (datetimeHoliday (2019, 7, 6, 0, 0, 0) Day "Día Internacional de las Cooperativas")
+             [ "día internacional de las cooperativas del 2019"
+             ]
+  , examples (datetimeHoliday (2013, 11, 17, 0, 0, 0) Day "Día de la Prematuridad Mundial")
+             [ "día de la prematuridad mundial"
+             , "día mundial del prematuro"
+             , "día mundial del niño prematuro"
+             ]
+  , examples (datetimeHoliday (2013, 4, 1, 0, 0, 0) Day "Día de los Inocentes de Abril")
+             [ "día de los inocentes"
+             , "día de los inocentes de abril"
+             , "día de las bromas de abril"
+             , "día de las bromas"
+             ]
+  , examples (datetime (2013, 3, 9, 0, 0, 0) Day)
+             [ "día nueve"
+             ]
+  , examples (datetime (2013, 2, 15, 0, 0, 0) Day)
+             [ "día quince"
+             ]
+  , examples (datetime (2013, 3, 11, 0, 0, 0) Day)
+             [ "día once"
+             ]
+  , examples (datetime (2013, 2, 12, 18, 2, 0) Minute)
+             [
+               "las seis cero dos pm"
+             , "las seis zero dos pm"
+             , "para las seis cero dos pm"
+             , "para las seis zero dos pm"
+             , "a las seis cero dos pm"
+             , "a las seis zero dos pm"
+             , "al las seis cero dos pm"
+             , "al las seis zero dos pm"
+             , "para las 6 0 2 pm"
+             , "a las 6 0 2 pm"
+             , "al las 6 0 2 pm"
+             , "seis cero dos pm"
+             ]
+  , examples (datetime (2013, 2, 12, 18, 2, 0) Minute)
+             [ "seis dos de la tarde"
+             ]
+  , examples (datetime (1990, 0, 0, 0, 0, 0) Year)
+             [
+               "mil novecientos noventa"
+             ]
+  , examples (datetime (1990, 5, 4, 0, 0, 0) Day)
+             [
+               "cuatro de mayo de mil novecientos noventa"
              ]
   ]

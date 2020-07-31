@@ -2,8 +2,7 @@
 -- All rights reserved.
 --
 -- This source code is licensed under the BSD-style license found in the
--- LICENSE file in the root directory of this source tree. An additional grant
--- of patent rights can be found in the PATENTS file in the same directory.
+-- LICENSE file in the root directory of this source tree.
 
 
 {-# LANGUAGE RecordWildCards #-}
@@ -13,8 +12,6 @@ module Duckling.Ranking.Rank
   ( rank
   ) where
 
-import Control.Arrow ((***))
-import Control.Monad (join)
 import qualified Data.HashMap.Strict as HashMap
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
@@ -27,23 +24,25 @@ import Duckling.Ranking.Extraction
 import Duckling.Ranking.Types
 import Duckling.Types
 
-classify :: Classifier -> BagOfFeatures -> (Class, Double)
-classify Classifier {..} feats = if okScore >= koScore
-  then (True, okScore)
-  else (False, koScore)
-  where
-    (okScore, koScore) = join (***) (p feats) (okData, koData)
-    p :: BagOfFeatures -> ClassData -> Double
-    p feats ClassData{..} =
-      prior + HashMap.foldrWithKey (\feat x res ->
-        res + fromIntegral x * HashMap.lookupDefault unseen feat likelihoods
-      ) 0.0 feats
+-- | computes log likelihood of a class
+ll :: BagOfFeatures -> ClassData -> Double
+ll feats ClassData{..} =
+  prior +
+    HashMap.foldrWithKey
+      (\feat x res ->
+       res + fromIntegral x * HashMap.lookupDefault unseen feat likelihoods)
+      0.0
+      feats
+
+-- | computes positive class log likelihood
+posLL :: Classifier -> BagOfFeatures -> Double
+posLL Classifier {..} feats = ll feats okData
 
 score :: Classifiers -> Node -> Double
 score classifiers node@Node {rule = Just rule, ..} =
   case HashMap.lookup rule classifiers of
     Just c -> let feats = extractFeatures node
-      in snd (classify c feats) + sum (map (score classifiers) children)
+      in posLL c feats + sum (map (score classifiers) children)
     Nothing -> 0.0
 score _ Node {rule = Nothing} = 0.0
 
